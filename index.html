@@ -713,31 +713,14 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
         }
 
+        /* Third calculator - hidden on mobile */
+        .calculator-card.third-calc {
+            display: none;
+        }
+
         /* Responsive Design */
-        @media (min-width: 768px) {
-            .calculators-section {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .comparison-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .main-content {
-                grid-template-columns: 1fr 400px;
-            }
-        }
-
-        @media (min-width: 1200px) {
-            .calculators-section {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .comparison-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
+        
+        /* Mobile - single column, 2 calculators only, history below */
         @media (max-width: 767px) {
             h1 {
                 font-size: 1.8rem;
@@ -764,6 +747,15 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 grid-template-columns: 1fr;
             }
 
+            .calculators-section {
+                grid-template-columns: 1fr;
+            }
+
+            /* Hide third calculator on mobile */
+            .calculator-card.third-calc {
+                display: none !important;
+            }
+
             .modal-buttons {
                 flex-direction: column-reverse;
             }
@@ -778,6 +770,56 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
 
             .rate-range {
                 font-size: 0.8rem;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tablet - 2 columns for calculators, history below */
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .calculators-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Show third calculator on tablet, centered on its own row */
+            .calculator-card.third-calc {
+                display: block;
+                grid-column: 1 / -1;
+                max-width: 50%;
+                justify-self: center;
+            }
+
+            .comparison-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .history-section {
+                margin-top: 20px;
+            }
+        }
+
+        /* Desktop - 3 columns for calculators, history on the side */
+        @media (min-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 400px;
+            }
+
+            .calculators-section {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .calculator-card.third-calc {
+                display: block;
+            }
+
+            .comparison-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -833,17 +875,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
 
         .calculator-card:nth-child(3) {
             animation-delay: 0.2s;
-        }
-
-        /* Third calculator visibility */
-        .calculator-card.third-calc {
-            display: none;
-        }
-
-        @media (min-width: 1200px) {
-            .calculator-card.third-calc {
-                display: block;
-            }
         }
 
         /* Input helper text */
@@ -1028,7 +1059,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                         </div>
                     </div>
 
-                    <!-- Calculator 3 (Desktop only) -->
+                    <!-- Calculator 3 -->
                     <div class="calculator-card third-calc" id="calc3">
                         <div class="card-header">
                             <div class="card-title">
@@ -1200,6 +1231,36 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             EUR: '€'
         };
 
+        // Format number based on currency
+        // UAH: 100 000,00 ₴ (symbol after, space as thousand separator, comma as decimal)
+        // USD/EUR: $1,000.00 / €1,000.00 (symbol before, comma as thousand separator, dot as decimal)
+        function formatCurrency(num, currency, prefix = '') {
+            const symbol = currencySymbols[currency];
+            
+            if (currency === 'UAH') {
+                // Ukrainian format: 100 000,00 ₴
+                const formatted = num.toFixed(2)
+                    .replace('.', ',')
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                return `${prefix}${formatted} ${symbol}`;
+            } else {
+                // Western format: $1,000.00 or €1,000.00
+                const formatted = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return `${prefix}${symbol}${formatted}`;
+            }
+        }
+
+        // Format number for display without currency (used in some places)
+        function formatNumber(num, currency = 'USD') {
+            if (currency === 'UAH') {
+                return num.toFixed(2)
+                    .replace('.', ',')
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            } else {
+                return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+        }
+
         // Modal system
         class Modal {
             constructor() {
@@ -1321,6 +1382,11 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
         }
 
         const modal = new Modal();
+
+        // Check if mobile
+        function isMobile() {
+            return window.innerWidth < 768;
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -1527,27 +1593,22 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
 
         // Display calculation results
         function displayResults(calcId, results) {
-            const symbol = currencySymbols[results.currency];
+            const currency = results.currency;
             
             document.getElementById(`totalDeposited${calcId}`).textContent = 
-                `${symbol}${formatNumber(results.totalDeposited)}`;
+                formatCurrency(results.totalDeposited, currency);
             document.getElementById(`extraContributions${calcId}`).textContent = 
-                `+${symbol}${formatNumber(results.extraContributions)}`;
+                formatCurrency(results.extraContributions, currency, '+');
             document.getElementById(`grossIncome${calcId}`).textContent = 
-                `${symbol}${formatNumber(results.grossIncome)}`;
+                formatCurrency(results.grossIncome, currency);
             document.getElementById(`tax${calcId}`).textContent = 
-                `-${symbol}${formatNumber(results.tax)}`;
+                formatCurrency(results.tax, currency, '-');
             document.getElementById(`netIncome${calcId}`).textContent = 
-                `${symbol}${formatNumber(results.netIncome)}`;
+                formatCurrency(results.netIncome, currency);
             document.getElementById(`totalAmount${calcId}`).textContent = 
-                `${symbol}${formatNumber(results.totalAmount)}`;
+                formatCurrency(results.totalAmount, currency);
             
             document.getElementById(`results${calcId}`).style.display = 'block';
-        }
-
-        // Format number with commas
-        function formatNumber(num) {
-            return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
         // Add to calculations history
@@ -1571,10 +1632,9 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
         // Compare calculations
         async function compareCalculations() {
             const selectedCalcs = [];
-            const isDesktop = window.innerWidth >= 1200;
-            const maxCompare = isDesktop ? 3 : 2;
+            const maxCalcs = isMobile() ? 2 : 3;
             
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= maxCalcs; i++) {
                 if (document.getElementById(`compare${i}`).checked && state.calculators[i].results) {
                     selectedCalcs.push({
                         calcId: i,
@@ -1595,14 +1655,11 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 return;
             }
             
-            // Limit to max allowed
-            const calcsToCompare = selectedCalcs.slice(0, maxCompare);
-            
             // Find best option (highest net income in percentage of total deposited)
             let bestIndex = 0;
             let bestPercentage = 0;
             
-            calcsToCompare.forEach((calc, index) => {
+            selectedCalcs.forEach((calc, index) => {
                 const percentage = (calc.netIncome / calc.totalDeposited) * 100;
                 if (percentage > bestPercentage) {
                     bestPercentage = percentage;
@@ -1614,28 +1671,33 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             const comparisonGrid = document.getElementById('comparisonGrid');
             comparisonGrid.innerHTML = '';
             
-            calcsToCompare.forEach((calc, index) => {
-                const symbol = currencySymbols[calc.currency];
+            selectedCalcs.forEach((calc, index) => {
+                const currency = calc.currency;
                 const percentage = ((calc.netIncome / calc.totalDeposited) * 100).toFixed(2);
                 const hasExtra = calc.monthlyExtra > 0;
+                
+                // Format monthly extra for badge
+                const monthlyExtraFormatted = currency === 'UAH' 
+                    ? `+${calc.monthlyExtra} ₴/mo`
+                    : `+${currencySymbols[currency]}${calc.monthlyExtra}/mo`;
                 
                 const item = document.createElement('div');
                 item.className = `comparison-item ${index === bestIndex ? 'best' : ''}`;
                 item.innerHTML = `
                     <div class="comparison-label">
                         Calculator ${calc.calcId}
-                        <span class="currency-badge ${calc.currency.toLowerCase()}">${calc.currency}</span>
-                        ${hasExtra ? `<span class="extra-badge">+${symbol}${calc.monthlyExtra}/mo</span>` : ''}
+                        <span class="currency-badge ${currency.toLowerCase()}">${currency}</span>
+                        ${hasExtra ? `<span class="extra-badge">${monthlyExtraFormatted}</span>` : ''}
                     </div>
-                    <div class="comparison-value">${symbol}${formatNumber(calc.netIncome)}</div>
+                    <div class="comparison-value">${formatCurrency(calc.netIncome, currency)}</div>
                     <div style="color: var(--text-secondary); margin-top: 10px;">
-                        ${percentage}% return on ${symbol}${formatNumber(calc.totalDeposited)}
+                        ${percentage}% return on ${formatCurrency(calc.totalDeposited, currency)}
                     </div>
                     <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 5px;">
                         ${calc.rate}% rate • ${calc.period} months
                     </div>
                     <div style="color: var(--secondary); font-size: 1rem; margin-top: 10px; font-weight: 600;">
-                        Total: ${symbol}${formatNumber(calc.totalAmount)}
+                        Total: ${formatCurrency(calc.totalAmount, currency)}
                     </div>
                 `;
                 comparisonGrid.appendChild(item);
@@ -1644,7 +1706,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             document.getElementById('comparisonResults').style.display = 'block';
             
             // Add to comparison history
-            addToComparisonsHistory(calcsToCompare, bestIndex);
+            addToComparisonsHistory(selectedCalcs, bestIndex);
         }
 
         // Add to comparisons history
@@ -1714,25 +1776,30 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             }
             
             container.innerHTML = state.calculationsHistory.map(item => {
-                const symbol = currencySymbols[item.currency];
+                const currency = item.currency;
                 const date = new Date(item.timestamp).toLocaleDateString();
                 const time = new Date(item.timestamp).toLocaleTimeString();
                 const hasExtra = item.monthlyExtra > 0;
+                
+                // Format monthly extra for badge
+                const monthlyExtraFormatted = currency === 'UAH' 
+                    ? `+${item.monthlyExtra} ₴/mo`
+                    : `+${currencySymbols[currency]}${item.monthlyExtra}/mo`;
                 
                 return `
                     <div class="history-item">
                         <div class="history-info">
                             <div class="history-amount">
-                                ${symbol}${formatNumber(item.totalDeposited || item.amount)}
-                                <span class="currency-badge ${item.currency.toLowerCase()}">${item.currency}</span>
-                                ${hasExtra ? `<span class="extra-badge">+${symbol}${item.monthlyExtra}/mo</span>` : ''}
+                                ${formatCurrency(item.totalDeposited || item.amount, currency)}
+                                <span class="currency-badge ${currency.toLowerCase()}">${currency}</span>
+                                ${hasExtra ? `<span class="extra-badge">${monthlyExtraFormatted}</span>` : ''}
                             </div>
                             <div class="history-details">
                                 ${item.rate}% rate • ${item.period} months
                             </div>
                         </div>
                         <div class="history-result">
-                            <div class="history-income">+${symbol}${formatNumber(item.netIncome)}</div>
+                            <div class="history-income">${formatCurrency(item.netIncome, currency, '+')}</div>
                             <div class="history-date">${date} ${time}</div>
                         </div>
                     </div>
@@ -1758,11 +1825,10 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 const date = new Date(item.timestamp).toLocaleDateString();
                 const time = new Date(item.timestamp).toLocaleTimeString();
                 const best = item.comparisons[item.bestIndex];
-                const symbol = currencySymbols[best.currency];
+                const currency = best.currency;
                 
                 const summary = item.comparisons.map((c, i) => {
-                    const s = currencySymbols[c.currency];
-                    return `${s}${formatNumber(c.netIncome)}${i === item.bestIndex ? ' 👑' : ''}`;
+                    return `${formatCurrency(c.netIncome, c.currency)}${i === item.bestIndex ? ' 👑' : ''}`;
                 }).join(' vs ');
                 
                 return `
@@ -1776,7 +1842,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                             </div>
                         </div>
                         <div class="history-result">
-                            <div class="history-income">Best: ${symbol}${formatNumber(best.netIncome)}</div>
+                            <div class="history-income">Best: ${formatCurrency(best.netIncome, currency)}</div>
                             <div class="history-date">${date} ${time}</div>
                         </div>
                     </div>
@@ -1800,17 +1866,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 await modal.success('All history has been cleared successfully.', 'History Cleared');
             }
         }
-
-        // Handle window resize for comparison limit
-        window.addEventListener('resize', () => {
-            // Update comparison visibility based on screen size
-            const thirdCalc = document.querySelector('.third-calc');
-            if (window.innerWidth >= 1200) {
-                thirdCalc.style.display = 'block';
-            } else {
-                thirdCalc.style.display = 'none';
-            }
-        });
     </script>
 </body>
 </html>
