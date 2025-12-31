@@ -2,12 +2,12 @@
 <!-- MIT License
 Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
 -->
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Income Calculator">
-    <title>Income Calculator</title>
+    <meta name="description" content="Калькулятор доходу">
+    <title>Калькулятор доходу</title>
     
     <!-- Favicon - Chart Icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1'/%3E%3Cstop offset='100%25' style='stop-color:%2310b981'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Crect x='15' y='55' width='16' height='30' rx='4' fill='white' opacity='0.7'/%3E%3Crect x='42' y='35' width='16' height='50' rx='4' fill='white' opacity='0.85'/%3E%3Crect x='69' y='15' width='16' height='70' rx='4' fill='white'/%3E%3C/svg%3E">
@@ -72,6 +72,58 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
         .subtitle {
             color: var(--text-secondary);
             font-size: 1rem;
+        }
+
+        /* Settings Bar */
+        .settings-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .setting-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .setting-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .setting-toggle {
+            display: flex;
+            background: var(--bg-input);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .setting-toggle button {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .setting-toggle button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .setting-toggle button:hover:not(.active) {
+            background: rgba(99, 102, 241, 0.2);
         }
 
         .main-content {
@@ -475,7 +527,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
         }
 
         .comparison-item.best::before {
-            content: '👑 Best Option';
+            content: attr(data-best-label);
             display: block;
             color: var(--secondary);
             font-weight: 600;
@@ -775,6 +827,15 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             .comparison-grid {
                 grid-template-columns: 1fr;
             }
+
+            .settings-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .setting-group {
+                justify-content: space-between;
+            }
         }
 
         /* Tablet - 2 columns for calculators, history below */
@@ -888,9 +949,27 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
 <body>
     <div class="container">
         <header>
-            <h1>💰 Income Calculator</h1>
-            <p class="subtitle">Calculate and compare your deposit earnings with tax deductions</p>
+            <h1 id="pageTitle">💰 Калькулятор доходу</h1>
+            <p class="subtitle" id="pageSubtitle">Розрахуйте та порівняйте ваші депозитні доходи з урахуванням податків</p>
         </header>
+
+        <!-- Settings Bar -->
+        <div class="settings-bar">
+            <div class="setting-group">
+                <span class="setting-label" id="languageLabel">Мова:</span>
+                <div class="setting-toggle">
+                    <button id="langUk" class="active" onclick="setLanguage('uk')">🇺🇦 Укр</button>
+                    <button id="langEn" onclick="setLanguage('en')">🇬🇧 Eng</button>
+                </div>
+            </div>
+            <div class="setting-group">
+                <span class="setting-label" id="taxLabel">Податок:</span>
+                <div class="setting-toggle">
+                    <button id="tax195" onclick="setTaxRate(19.5)">19.5%</button>
+                    <button id="tax23" class="active" onclick="setTaxRate(23)">23%</button>
+                </div>
+            </div>
+        </div>
 
         <div class="main-content">
             <div class="left-section">
@@ -900,41 +979,41 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                         <div class="card-header">
                             <div class="card-title">
                                 <div class="icon">1</div>
-                                <span>Calculator 1</span>
+                                <span data-i18n="calculator">Калькулятор</span> 1
                             </div>
                             <label class="compare-checkbox">
                                 <input type="checkbox" id="compare1" checked>
-                                <span>Compare</span>
+                                <span data-i18n="compare">Порівняти</span>
                             </label>
                         </div>
 
                         <div class="form-group">
-                            <label>Currency</label>
+                            <label data-i18n="currency">Валюта</label>
                             <select id="currency1" onchange="updateRateRange(1)">
-                                <option value="UAH">🇺🇦 UAH - Ukrainian Hryvnia</option>
-                                <option value="USD">🇺🇸 USD - US Dollar</option>
-                                <option value="EUR">🇪🇺 EUR - Euro</option>
+                                <option value="UAH">🇺🇦 UAH - Українська гривня</option>
+                                <option value="USD">🇺🇸 USD - Долар США</option>
+                                <option value="EUR">🇪🇺 EUR - Євро</option>
                             </select>
                         </div>
 
                         <div class="form-row-3">
                             <div class="form-group">
-                                <label>Initial Amount</label>
-                                <input type="number" id="amount1" placeholder="Enter amount" min="0" value="10000">
+                                <label data-i18n="initialAmount">Початкова сума</label>
+                                <input type="number" id="amount1" placeholder="Введіть суму" min="0" value="10000">
                             </div>
                             <div class="form-group">
-                                <label>Monthly Extra</label>
+                                <label data-i18n="monthlyExtra">Щомісячне поповнення</label>
                                 <input type="number" id="monthlyExtra1" placeholder="0" min="0" value="0">
-                                <div class="input-helper">Added each month</div>
+                                <div class="input-helper" data-i18n="addedEachMonth">Додається щомісяця</div>
                             </div>
                             <div class="form-group">
-                                <label>Period (months)</label>
-                                <input type="number" id="period1" placeholder="Months" min="1" max="60" value="12">
+                                <label data-i18n="period">Термін (місяців)</label>
+                                <input type="number" id="period1" placeholder="Місяців" min="1" max="60" value="12">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Annual Interest Rate</label>
+                            <label data-i18n="annualRate">Річна процентна ставка</label>
                             <div class="rate-slider-container">
                                 <input type="range" id="rate1" min="3" max="19" step="0.1" value="12">
                             </div>
@@ -945,33 +1024,33 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                         </div>
 
                         <button class="btn btn-primary" onclick="calculate(1)">
-                            📊 Calculate Income
+                            📊 <span data-i18n="calculateIncome">Розрахувати дохід</span>
                         </button>
 
                         <div class="results" id="results1" style="display: none;">
-                            <div class="results-title">Calculation Results</div>
+                            <div class="results-title" data-i18n="calculationResults">Результати розрахунку</div>
                             <div class="result-item">
-                                <span class="result-label">Total Deposited</span>
+                                <span class="result-label" data-i18n="totalDeposited">Загальний депозит</span>
                                 <span class="result-value" id="totalDeposited1">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Extra Contributions</span>
+                                <span class="result-label" data-i18n="extraContributions">Додаткові внески</span>
                                 <span class="result-value extra" id="extraContributions1">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Gross Income</span>
+                                <span class="result-label" data-i18n="grossIncome">Валовий дохід</span>
                                 <span class="result-value" id="grossIncome1">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Tax (23%)</span>
+                                <span class="result-label" id="taxLabel1">Податок (23%)</span>
                                 <span class="result-value tax" id="tax1">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Net Income</span>
+                                <span class="result-label" data-i18n="netIncome">Чистий дохід</span>
                                 <span class="result-value highlight" id="netIncome1">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Total Amount</span>
+                                <span class="result-label" data-i18n="totalAmount">Загальна сума</span>
                                 <span class="result-value highlight" id="totalAmount1">0</span>
                             </div>
                         </div>
@@ -982,41 +1061,41 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                         <div class="card-header">
                             <div class="card-title">
                                 <div class="icon">2</div>
-                                <span>Calculator 2</span>
+                                <span data-i18n="calculator">Калькулятор</span> 2
                             </div>
                             <label class="compare-checkbox">
                                 <input type="checkbox" id="compare2" checked>
-                                <span>Compare</span>
+                                <span data-i18n="compare">Порівняти</span>
                             </label>
                         </div>
 
                         <div class="form-group">
-                            <label>Currency</label>
+                            <label data-i18n="currency">Валюта</label>
                             <select id="currency2" onchange="updateRateRange(2)">
-                                <option value="UAH">🇺🇦 UAH - Ukrainian Hryvnia</option>
-                                <option value="USD">🇺🇸 USD - US Dollar</option>
-                                <option value="EUR">🇪🇺 EUR - Euro</option>
+                                <option value="UAH">🇺🇦 UAH - Українська гривня</option>
+                                <option value="USD">🇺🇸 USD - Долар США</option>
+                                <option value="EUR">🇪🇺 EUR - Євро</option>
                             </select>
                         </div>
 
                         <div class="form-row-3">
                             <div class="form-group">
-                                <label>Initial Amount</label>
-                                <input type="number" id="amount2" placeholder="Enter amount" min="0" value="10000">
+                                <label data-i18n="initialAmount">Початкова сума</label>
+                                <input type="number" id="amount2" placeholder="Введіть суму" min="0" value="10000">
                             </div>
                             <div class="form-group">
-                                <label>Monthly Extra</label>
+                                <label data-i18n="monthlyExtra">Щомісячне поповнення</label>
                                 <input type="number" id="monthlyExtra2" placeholder="0" min="0" value="0">
-                                <div class="input-helper">Added each month</div>
+                                <div class="input-helper" data-i18n="addedEachMonth">Додається щомісяця</div>
                             </div>
                             <div class="form-group">
-                                <label>Period (months)</label>
-                                <input type="number" id="period2" placeholder="Months" min="1" max="60" value="12">
+                                <label data-i18n="period">Термін (місяців)</label>
+                                <input type="number" id="period2" placeholder="Місяців" min="1" max="60" value="12">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Annual Interest Rate</label>
+                            <label data-i18n="annualRate">Річна процентна ставка</label>
                             <div class="rate-slider-container">
                                 <input type="range" id="rate2" min="3" max="19" step="0.1" value="15">
                             </div>
@@ -1027,33 +1106,33 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                         </div>
 
                         <button class="btn btn-primary" onclick="calculate(2)">
-                            📊 Calculate Income
+                            📊 <span data-i18n="calculateIncome">Розрахувати дохід</span>
                         </button>
 
                         <div class="results" id="results2" style="display: none;">
-                            <div class="results-title">Calculation Results</div>
+                            <div class="results-title" data-i18n="calculationResults">Результати розрахунку</div>
                             <div class="result-item">
-                                <span class="result-label">Total Deposited</span>
+                                <span class="result-label" data-i18n="totalDeposited">Загальний депозит</span>
                                 <span class="result-value" id="totalDeposited2">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Extra Contributions</span>
+                                <span class="result-label" data-i18n="extraContributions">Додаткові внески</span>
                                 <span class="result-value extra" id="extraContributions2">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Gross Income</span>
+                                <span class="result-label" data-i18n="grossIncome">Валовий дохід</span>
                                 <span class="result-value" id="grossIncome2">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Tax (23%)</span>
+                                <span class="result-label" id="taxLabel2">Податок (23%)</span>
                                 <span class="result-value tax" id="tax2">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Net Income</span>
+                                <span class="result-label" data-i18n="netIncome">Чистий дохід</span>
                                 <span class="result-value highlight" id="netIncome2">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Total Amount</span>
+                                <span class="result-label" data-i18n="totalAmount">Загальна сума</span>
                                 <span class="result-value highlight" id="totalAmount2">0</span>
                             </div>
                         </div>
@@ -1064,41 +1143,41 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                         <div class="card-header">
                             <div class="card-title">
                                 <div class="icon">3</div>
-                                <span>Calculator 3</span>
+                                <span data-i18n="calculator">Калькулятор</span> 3
                             </div>
                             <label class="compare-checkbox">
                                 <input type="checkbox" id="compare3" checked>
-                                <span>Compare</span>
+                                <span data-i18n="compare">Порівняти</span>
                             </label>
                         </div>
 
                         <div class="form-group">
-                            <label>Currency</label>
+                            <label data-i18n="currency">Валюта</label>
                             <select id="currency3" onchange="updateRateRange(3)">
-                                <option value="UAH">🇺🇦 UAH - Ukrainian Hryvnia</option>
-                                <option value="USD" selected>🇺🇸 USD - US Dollar</option>
-                                <option value="EUR">🇪🇺 EUR - Euro</option>
+                                <option value="UAH">🇺🇦 UAH - Українська гривня</option>
+                                <option value="USD" selected>🇺🇸 USD - Долар США</option>
+                                <option value="EUR">🇪🇺 EUR - Євро</option>
                             </select>
                         </div>
 
                         <div class="form-row-3">
                             <div class="form-group">
-                                <label>Initial Amount</label>
-                                <input type="number" id="amount3" placeholder="Enter amount" min="0" value="1000">
+                                <label data-i18n="initialAmount">Початкова сума</label>
+                                <input type="number" id="amount3" placeholder="Введіть суму" min="0" value="1000">
                             </div>
                             <div class="form-group">
-                                <label>Monthly Extra</label>
+                                <label data-i18n="monthlyExtra">Щомісячне поповнення</label>
                                 <input type="number" id="monthlyExtra3" placeholder="0" min="0" value="100">
-                                <div class="input-helper">Added each month</div>
+                                <div class="input-helper" data-i18n="addedEachMonth">Додається щомісяця</div>
                             </div>
                             <div class="form-group">
-                                <label>Period (months)</label>
-                                <input type="number" id="period3" placeholder="Months" min="1" max="60" value="12">
+                                <label data-i18n="period">Термін (місяців)</label>
+                                <input type="number" id="period3" placeholder="Місяців" min="1" max="60" value="12">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Annual Interest Rate</label>
+                            <label data-i18n="annualRate">Річна процентна ставка</label>
                             <div class="rate-slider-container">
                                 <input type="range" id="rate3" min="0.1" max="3" step="0.1" value="2">
                             </div>
@@ -1109,33 +1188,33 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                         </div>
 
                         <button class="btn btn-primary" onclick="calculate(3)">
-                            📊 Calculate Income
+                            📊 <span data-i18n="calculateIncome">Розрахувати дохід</span>
                         </button>
 
                         <div class="results" id="results3" style="display: none;">
-                            <div class="results-title">Calculation Results</div>
+                            <div class="results-title" data-i18n="calculationResults">Результати розрахунку</div>
                             <div class="result-item">
-                                <span class="result-label">Total Deposited</span>
+                                <span class="result-label" data-i18n="totalDeposited">Загальний депозит</span>
                                 <span class="result-value" id="totalDeposited3">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Extra Contributions</span>
+                                <span class="result-label" data-i18n="extraContributions">Додаткові внески</span>
                                 <span class="result-value extra" id="extraContributions3">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Gross Income</span>
+                                <span class="result-label" data-i18n="grossIncome">Валовий дохід</span>
                                 <span class="result-value" id="grossIncome3">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Tax (23%)</span>
+                                <span class="result-label" id="taxLabel3">Податок (23%)</span>
                                 <span class="result-value tax" id="tax3">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Net Income</span>
+                                <span class="result-label" data-i18n="netIncome">Чистий дохід</span>
                                 <span class="result-value highlight" id="netIncome3">0</span>
                             </div>
                             <div class="result-item">
-                                <span class="result-label">Total Amount</span>
+                                <span class="result-label" data-i18n="totalAmount">Загальна сума</span>
                                 <span class="result-value highlight" id="totalAmount3">0</span>
                             </div>
                         </div>
@@ -1143,12 +1222,12 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 </div>
 
                 <button class="btn btn-compare" onclick="compareCalculations()">
-                    ⚖️ Compare Selected Calculations
+                    ⚖️ <span data-i18n="compareSelected">Порівняти вибрані розрахунки</span>
                 </button>
 
                 <div class="comparison-results" id="comparisonResults" style="display: none;">
                     <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                        <span>📊</span> Comparison Results
+                        <span>📊</span> <span data-i18n="comparisonResults">Результати порівняння</span>
                     </h3>
                     <div class="comparison-grid" id="comparisonGrid">
                         <!-- Comparison items will be inserted here -->
@@ -1160,30 +1239,30 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 <div class="history-header">
                     <div class="history-title">
                         <span>📜</span>
-                        <span>History</span>
+                        <span data-i18n="history">Історія</span>
                     </div>
                     <div class="history-tabs">
-                        <button class="tab-btn active" onclick="switchTab('calculations')">Calculations</button>
-                        <button class="tab-btn" onclick="switchTab('comparisons')">Comparisons</button>
+                        <button class="tab-btn active" onclick="switchTab('calculations')" data-i18n="calculations">Розрахунки</button>
+                        <button class="tab-btn" onclick="switchTab('comparisons')" data-i18n="comparisons">Порівняння</button>
                     </div>
                 </div>
 
                 <div id="calculationsHistory" class="history-list">
                     <div class="empty-state">
                         <div class="icon">📊</div>
-                        <p>No calculations yet</p>
+                        <p data-i18n="noCalculationsYet">Ще немає розрахунків</p>
                     </div>
                 </div>
 
                 <div id="comparisonsHistory" class="history-list" style="display: none;">
                     <div class="empty-state">
                         <div class="icon">⚖️</div>
-                        <p>No comparisons yet</p>
+                        <p data-i18n="noComparisonsYet">Ще немає порівнянь</p>
                     </div>
                 </div>
 
                 <button class="clear-btn" onclick="clearHistory()" style="margin-top: 15px; width: 100%;">
-                    🗑️ Clear History
+                    🗑️ <span data-i18n="clearHistory">Очистити історію</span>
                 </button>
             </div>
         </div>
@@ -1204,8 +1283,123 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
     </div>
 
     <script>
+        // Translations
+        const translations = {
+            uk: {
+                pageTitle: '💰 Калькулятор доходу',
+                pageSubtitle: 'Розрахуйте та порівняйте ваші депозитні доходи з урахуванням податків',
+                languageLabel: 'Мова:',
+                taxLabel: 'Податок:',
+                calculator: 'Калькулятор',
+                compare: 'Порівняти',
+                currency: 'Валюта',
+                initialAmount: 'Початкова сума',
+                monthlyExtra: 'Щомісячне поповнення',
+                addedEachMonth: 'Додається щомісяця',
+                period: 'Термін (місяців)',
+                annualRate: 'Річна процентна ставка',
+                calculateIncome: 'Розрахувати дохід',
+                calculationResults: 'Результати розрахунку',
+                totalDeposited: 'Загальний депозит',
+                extraContributions: 'Додаткові внески',
+                grossIncome: 'Валовий дохід',
+                tax: 'Податок',
+                netIncome: 'Чистий дохід',
+                totalAmount: 'Загальна сума',
+                compareSelected: 'Порівняти вибрані розрахунки',
+                comparisonResults: 'Результати порівняння',
+                history: 'Історія',
+                calculations: 'Розрахунки',
+                comparisons: 'Порівняння',
+                noCalculationsYet: 'Ще немає розрахунків',
+                noComparisonsYet: 'Ще немає порівнянь',
+                clearHistory: 'Очистити історію',
+                bestOption: '👑 Найкращий варіант',
+                returnOn: 'повернення на',
+                rate: 'ставка',
+                months: 'місяців',
+                total: 'Всього',
+                depositsCompared: 'депозитів порівняно',
+                best: 'Найкращий',
+                // Modal translations
+                notice: 'Повідомлення',
+                confirm: 'Підтвердити',
+                cancel: 'Скасувати',
+                ok: 'OK',
+                invalidAmount: 'Невірна сума',
+                invalidAmountMsg: 'Будь ласка, введіть дійсну початкову суму або щомісячний внесок більше нуля.',
+                invalidPeriod: 'Невірний термін',
+                invalidPeriodMsg: 'Будь ласка, введіть дійсний термін від 1 до 60 місяців.',
+                notEnoughData: 'Недостатньо даних',
+                notEnoughDataMsg: 'Будь ласка, розрахуйте принаймні 2 депозити та переконайтеся, що вони вибрані для порівняння.',
+                clearHistoryTitle: 'Очистити історію',
+                clearHistoryMsg: 'Ви впевнені, що хочете очистити всю історію розрахунків та порівнянь? Цю дію неможливо скасувати.',
+                historyCleared: 'Історію очищено',
+                historyClearedMsg: 'Всю історію успішно очищено.',
+                // Currency options
+                uahName: 'Українська гривня',
+                usdName: 'Долар США',
+                eurName: 'Євро'
+            },
+            en: {
+                pageTitle: '💰 Income Calculator',
+                pageSubtitle: 'Calculate and compare your deposit earnings with tax deductions',
+                languageLabel: 'Language:',
+                taxLabel: 'Tax:',
+                calculator: 'Calculator',
+                compare: 'Compare',
+                currency: 'Currency',
+                initialAmount: 'Initial Amount',
+                monthlyExtra: 'Monthly Extra',
+                addedEachMonth: 'Added each month',
+                period: 'Period (months)',
+                annualRate: 'Annual Interest Rate',
+                calculateIncome: 'Calculate Income',
+                calculationResults: 'Calculation Results',
+                totalDeposited: 'Total Deposited',
+                extraContributions: 'Extra Contributions',
+                grossIncome: 'Gross Income',
+                tax: 'Tax',
+                netIncome: 'Net Income',
+                totalAmount: 'Total Amount',
+                compareSelected: 'Compare Selected Calculations',
+                comparisonResults: 'Comparison Results',
+                history: 'History',
+                calculations: 'Calculations',
+                comparisons: 'Comparisons',
+                noCalculationsYet: 'No calculations yet',
+                noComparisonsYet: 'No comparisons yet',
+                clearHistory: 'Clear History',
+                bestOption: '👑 Best Option',
+                returnOn: 'return on',
+                rate: 'rate',
+                months: 'months',
+                total: 'Total',
+                depositsCompared: 'deposits compared',
+                best: 'Best',
+                // Modal translations
+                notice: 'Notice',
+                confirm: 'Confirm',
+                cancel: 'Cancel',
+                ok: 'OK',
+                invalidAmount: 'Invalid Amount',
+                invalidAmountMsg: 'Please enter a valid initial amount or monthly contribution greater than zero.',
+                invalidPeriod: 'Invalid Period',
+                invalidPeriodMsg: 'Please enter a valid period between 1 and 60 months.',
+                notEnoughData: 'Not Enough Data',
+                notEnoughDataMsg: 'Please calculate at least 2 deposits and make sure they are selected for comparison.',
+                clearHistoryTitle: 'Clear History',
+                clearHistoryMsg: 'Are you sure you want to clear all calculation and comparison history? This action cannot be undone.',
+                historyCleared: 'History Cleared',
+                historyClearedMsg: 'All history has been cleared successfully.',
+                // Currency options
+                uahName: 'Ukrainian Hryvnia',
+                usdName: 'US Dollar',
+                eurName: 'Euro'
+            }
+        };
+
         // Constants
-        const TAX_RATE = 0.23;
         const UAH_RATE_MIN = 3;
         const UAH_RATE_MAX = 19;
         const FOREIGN_RATE_MIN = 0.1;
@@ -1214,6 +1408,8 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
 
         // State
         let state = {
+            language: 'uk',
+            taxRate: 23,
             calculators: {
                 1: { currency: 'UAH', amount: 10000, monthlyExtra: 0, period: 12, rate: 12, compare: true, results: null },
                 2: { currency: 'UAH', amount: 10000, monthlyExtra: 0, period: 12, rate: 15, compare: true, results: null },
@@ -1231,26 +1427,124 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             EUR: '€'
         };
 
+        // Get current tax rate as decimal
+        function getTaxRate() {
+            return state.taxRate / 100;
+        }
+
+        // Get translation
+        function t(key) {
+            return translations[state.language][key] || key;
+        }
+
+        // Set language
+        function setLanguage(lang) {
+            state.language = lang;
+            
+            // Update toggle buttons
+            document.getElementById('langUk').classList.toggle('active', lang === 'uk');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+            
+            // Update all translations
+            updateTranslations();
+            
+            // Re-render history with new language
+            renderHistory();
+            
+            saveState();
+        }
+
+        // Set tax rate
+        function setTaxRate(rate) {
+            state.taxRate = rate;
+            
+            // Update toggle buttons
+            document.getElementById('tax195').classList.toggle('active', rate === 19.5);
+            document.getElementById('tax23').classList.toggle('active', rate === 23);
+            
+            // Update tax labels in results
+            updateTaxLabels();
+            
+            // Recalculate all calculators with results
+            for (let i = 1; i <= 3; i++) {
+                if (state.calculators[i].results) {
+                    calculate(i);
+                }
+            }
+            
+            saveState();
+        }
+
+        // Update tax labels
+        function updateTaxLabels() {
+            for (let i = 1; i <= 3; i++) {
+                const taxLabel = document.getElementById(`taxLabel${i}`);
+                if (taxLabel) {
+                    taxLabel.textContent = `${t('tax')} (${state.taxRate}%)`;
+                }
+            }
+        }
+
+        // Update all translations on the page
+        function updateTranslations() {
+            // Update page title and subtitle
+            document.getElementById('pageTitle').textContent = t('pageTitle');
+            document.getElementById('pageSubtitle').textContent = t('pageSubtitle');
+            document.getElementById('languageLabel').textContent = t('languageLabel');
+            document.getElementById('taxLabel').textContent = t('taxLabel');
+            
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+            
+            // Update currency selects
+            for (let i = 1; i <= 3; i++) {
+                const select = document.getElementById(`currency${i}`);
+                if (select) {
+                    select.innerHTML = `
+                        <option value="UAH">🇺🇦 UAH - ${t('uahName')}</option>
+                        <option value="USD">🇺🇸 USD - ${t('usdName')}</option>
+                        <option value="EUR">🇪🇺 EUR - ${t('eurName')}</option>
+                    `;
+                    select.value = state.calculators[i].currency;
+                }
+            }
+            
+            // Update tax labels
+            updateTaxLabels();
+            
+            // Update placeholders
+            document.querySelectorAll('input[placeholder]').forEach(input => {
+                const id = input.id;
+                if (id.startsWith('amount')) {
+                    input.placeholder = state.language === 'uk' ? 'Введіть суму' : 'Enter amount';
+                } else if (id.startsWith('period')) {
+                    input.placeholder = state.language === 'uk' ? 'Місяців' : 'Months';
+                }
+            });
+        }
+
         // Format number based on currency
-        // UAH: 100 000,00 ₴ (symbol after, space as thousand separator, comma as decimal)
-        // USD/EUR: $1,000.00 / €1,000.00 (symbol before, comma as thousand separator, dot as decimal)
         function formatCurrency(num, currency, prefix = '') {
             const symbol = currencySymbols[currency];
             
             if (currency === 'UAH') {
-                // Ukrainian format: 100 000,00 ₴
                 const formatted = num.toFixed(2)
                     .replace('.', ',')
                     .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
                 return `${prefix}${formatted} ${symbol}`;
             } else {
-                // Western format: $1,000.00 or €1,000.00
                 const formatted = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 return `${prefix}${symbol}${formatted}`;
             }
         }
 
-        // Format number for display without currency (used in some places)
+        // Format number for display without currency
         function formatNumber(num, currency = 'USD') {
             if (currency === 'UAH') {
                 return num.toFixed(2)
@@ -1273,14 +1567,12 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 this.buttons = document.getElementById('modalButtons');
                 this.resolvePromise = null;
 
-                // Close on overlay click
                 this.overlay.addEventListener('click', (e) => {
                     if (e.target === this.overlay) {
                         this.close(false);
                     }
                 });
 
-                // Close on Escape key
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
                         this.close(false);
@@ -1292,7 +1584,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 return new Promise((resolve) => {
                     this.resolvePromise = resolve;
 
-                    // Set icon
                     this.icon.className = 'modal-icon ' + (options.type || 'info');
                     const icons = {
                         warning: '⚠️',
@@ -1302,28 +1593,25 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                     };
                     this.iconEmoji.textContent = options.icon || icons[options.type] || 'ℹ️';
 
-                    // Set content
-                    this.title.textContent = options.title || 'Notice';
+                    this.title.textContent = options.title || t('notice');
                     this.message.textContent = options.message || '';
 
-                    // Set buttons
                     this.buttons.innerHTML = '';
 
                     if (options.showCancel) {
                         const cancelBtn = document.createElement('button');
                         cancelBtn.className = 'modal-btn modal-btn-cancel';
-                        cancelBtn.textContent = options.cancelText || 'Cancel';
+                        cancelBtn.textContent = options.cancelText || t('cancel');
                         cancelBtn.onclick = () => this.close(false);
                         this.buttons.appendChild(cancelBtn);
                     }
 
                     const confirmBtn = document.createElement('button');
                     confirmBtn.className = 'modal-btn ' + (options.confirmClass || 'modal-btn-ok');
-                    confirmBtn.textContent = options.confirmText || 'OK';
+                    confirmBtn.textContent = options.confirmText || t('ok');
                     confirmBtn.onclick = () => this.close(true);
                     this.buttons.appendChild(confirmBtn);
 
-                    // Show modal
                     this.overlay.classList.add('active');
                     confirmBtn.focus();
                 });
@@ -1337,45 +1625,44 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 }
             }
 
-            // Convenience methods
-            alert(message, title = 'Notice', type = 'info') {
+            alert(message, title = t('notice'), type = 'info') {
                 return this.show({
                     type,
                     title,
                     message,
-                    confirmText: 'OK',
+                    confirmText: t('ok'),
                     confirmClass: 'modal-btn-ok'
                 });
             }
 
-            confirm(message, title = 'Confirm', type = 'warning') {
+            confirm(message, title = t('confirm'), type = 'warning') {
                 return this.show({
                     type,
                     title,
                     message,
                     showCancel: true,
-                    cancelText: 'Cancel',
-                    confirmText: 'Confirm',
+                    cancelText: t('cancel'),
+                    confirmText: t('confirm'),
                     confirmClass: type === 'warning' ? 'modal-btn-danger' : 'modal-btn-confirm'
                 });
             }
 
-            error(message, title = 'Error') {
+            error(message, title) {
                 return this.show({
                     type: 'error',
                     title,
                     message,
-                    confirmText: 'OK',
+                    confirmText: t('ok'),
                     confirmClass: 'modal-btn-ok'
                 });
             }
 
-            success(message, title = 'Success') {
+            success(message, title) {
                 return this.show({
                     type: 'success',
                     title,
                     message,
-                    confirmText: 'OK',
+                    confirmText: t('ok'),
                     confirmClass: 'modal-btn-ok'
                 });
             }
@@ -1394,6 +1681,13 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             initializeCalculators();
             setupEventListeners();
             renderHistory();
+            updateTranslations();
+            
+            // Update settings toggles based on loaded state
+            document.getElementById('langUk').classList.toggle('active', state.language === 'uk');
+            document.getElementById('langEn').classList.toggle('active', state.language === 'en');
+            document.getElementById('tax195').classList.toggle('active', state.taxRate === 19.5);
+            document.getElementById('tax23').classList.toggle('active', state.taxRate === 23);
         });
 
         // Load state from localStorage
@@ -1403,6 +1697,8 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 try {
                     const parsed = JSON.parse(savedState);
                     // Merge with default state to handle new fields
+                    if (parsed.language) state.language = parsed.language;
+                    if (parsed.taxRate) state.taxRate = parsed.taxRate;
                     for (let i = 1; i <= 3; i++) {
                         if (parsed.calculators && parsed.calculators[i]) {
                             state.calculators[i] = { ...state.calculators[i], ...parsed.calculators[i] };
@@ -1446,7 +1742,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
         // Setup event listeners
         function setupEventListeners() {
             for (let i = 1; i <= 3; i++) {
-                // Rate slider
                 document.getElementById(`rate${i}`).addEventListener('input', (e) => {
                     const value = e.target.value;
                     document.getElementById(`rateValue${i}`).textContent = value + '%';
@@ -1454,31 +1749,26 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                     saveState();
                 });
 
-                // Currency change
                 document.getElementById(`currency${i}`).addEventListener('change', (e) => {
                     state.calculators[i].currency = e.target.value;
                     saveState();
                 });
 
-                // Amount change
                 document.getElementById(`amount${i}`).addEventListener('input', (e) => {
                     state.calculators[i].amount = parseFloat(e.target.value) || 0;
                     saveState();
                 });
 
-                // Monthly extra change
                 document.getElementById(`monthlyExtra${i}`).addEventListener('input', (e) => {
                     state.calculators[i].monthlyExtra = parseFloat(e.target.value) || 0;
                     saveState();
                 });
 
-                // Period change
                 document.getElementById(`period${i}`).addEventListener('input', (e) => {
                     state.calculators[i].period = parseInt(e.target.value) || 1;
                     saveState();
                 });
 
-                // Compare checkbox
                 document.getElementById(`compare${i}`).addEventListener('change', (e) => {
                     state.calculators[i].compare = e.target.checked;
                     document.getElementById(`calc${i}`).classList.toggle('compare-mode', e.target.checked);
@@ -1526,46 +1816,33 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             const annualRate = parseFloat(document.getElementById(`rate${calcId}`).value) || 0;
             
             if (initialAmount <= 0 && monthlyExtra <= 0) {
-                await modal.error('Please enter a valid initial amount or monthly contribution greater than zero.', 'Invalid Amount');
+                await modal.error(t('invalidAmountMsg'), t('invalidAmount'));
                 return;
             }
             
             if (period <= 0 || period > 60) {
-                await modal.error('Please enter a valid period between 1 and 60 months.', 'Invalid Period');
+                await modal.error(t('invalidPeriodMsg'), t('invalidPeriod'));
                 return;
             }
 
-            // Calculate with compound interest for monthly contributions
             const monthlyRate = annualRate / 100 / 12;
             let totalAmount = initialAmount;
             let totalGrossIncome = 0;
 
-            // Calculate month by month
             for (let month = 1; month <= period; month++) {
-                // Interest on current balance
                 const monthlyInterest = totalAmount * monthlyRate;
                 totalGrossIncome += monthlyInterest;
                 totalAmount += monthlyInterest;
                 
-                // Add monthly contribution (except for the last month if you want it at the start)
                 if (month < period) {
                     totalAmount += monthlyExtra;
                 }
             }
 
-            // Total extra contributions
             const totalExtraContributions = monthlyExtra * (period - 1);
-            
-            // Total deposited (initial + all extras)
             const totalDeposited = initialAmount + totalExtraContributions;
-            
-            // Calculate tax
-            const tax = totalGrossIncome * TAX_RATE;
-            
-            // Calculate net income
+            const tax = totalGrossIncome * getTaxRate();
             const netIncome = totalGrossIncome - tax;
-            
-            // Final total (deposited + net income)
             const finalTotal = totalDeposited + netIncome;
             
             const results = {
@@ -1574,6 +1851,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 monthlyExtra,
                 period,
                 rate: annualRate,
+                taxRate: state.taxRate,
                 totalDeposited,
                 extraContributions: totalExtraContributions,
                 grossIncome: totalGrossIncome,
@@ -1586,7 +1864,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             state.calculators[calcId].results = results;
             displayResults(calcId, results);
             
-            // Add to history
             addToCalculationsHistory(results, calcId);
             saveState();
         }
@@ -1608,6 +1885,9 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             document.getElementById(`totalAmount${calcId}`).textContent = 
                 formatCurrency(results.totalAmount, currency);
             
+            // Update tax label with current rate
+            document.getElementById(`taxLabel${calcId}`).textContent = `${t('tax')} (${state.taxRate}%)`;
+            
             document.getElementById(`results${calcId}`).style.display = 'block';
         }
 
@@ -1621,7 +1901,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             
             state.calculationsHistory.unshift(historyItem);
             
-            // Keep only last 12
             if (state.calculationsHistory.length > MAX_HISTORY) {
                 state.calculationsHistory = state.calculationsHistory.slice(0, MAX_HISTORY);
             }
@@ -1647,15 +1926,14 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 await modal.show({
                     type: 'warning',
                     icon: '⚖️',
-                    title: 'Not Enough Data',
-                    message: 'Please calculate at least 2 deposits and make sure they are selected for comparison.',
-                    confirmText: 'OK',
+                    title: t('notEnoughData'),
+                    message: t('notEnoughDataMsg'),
+                    confirmText: t('ok'),
                     confirmClass: 'modal-btn-ok'
                 });
                 return;
             }
             
-            // Find best option (highest net income in percentage of total deposited)
             let bestIndex = 0;
             let bestPercentage = 0;
             
@@ -1667,7 +1945,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 }
             });
             
-            // Display comparison
             const comparisonGrid = document.getElementById('comparisonGrid');
             comparisonGrid.innerHTML = '';
             
@@ -1676,28 +1953,30 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 const percentage = ((calc.netIncome / calc.totalDeposited) * 100).toFixed(2);
                 const hasExtra = calc.monthlyExtra > 0;
                 
-                // Format monthly extra for badge
                 const monthlyExtraFormatted = currency === 'UAH' 
-                    ? `+${calc.monthlyExtra} ₴/mo`
-                    : `+${currencySymbols[currency]}${calc.monthlyExtra}/mo`;
+                    ? `+${calc.monthlyExtra} ₴/${state.language === 'uk' ? 'міс' : 'mo'}`
+                    : `+${currencySymbols[currency]}${calc.monthlyExtra}/${state.language === 'uk' ? 'міс' : 'mo'}`;
                 
                 const item = document.createElement('div');
                 item.className = `comparison-item ${index === bestIndex ? 'best' : ''}`;
+                if (index === bestIndex) {
+                    item.setAttribute('data-best-label', t('bestOption'));
+                }
                 item.innerHTML = `
                     <div class="comparison-label">
-                        Calculator ${calc.calcId}
+                        ${t('calculator')} ${calc.calcId}
                         <span class="currency-badge ${currency.toLowerCase()}">${currency}</span>
                         ${hasExtra ? `<span class="extra-badge">${monthlyExtraFormatted}</span>` : ''}
                     </div>
                     <div class="comparison-value">${formatCurrency(calc.netIncome, currency)}</div>
                     <div style="color: var(--text-secondary); margin-top: 10px;">
-                        ${percentage}% return on ${formatCurrency(calc.totalDeposited, currency)}
+                        ${percentage}% ${t('returnOn')} ${formatCurrency(calc.totalDeposited, currency)}
                     </div>
                     <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 5px;">
-                        ${calc.rate}% rate • ${calc.period} months
+                        ${calc.rate}% ${t('rate')} • ${calc.period} ${t('months')}
                     </div>
                     <div style="color: var(--secondary); font-size: 1rem; margin-top: 10px; font-weight: 600;">
-                        Total: ${formatCurrency(calc.totalAmount, currency)}
+                        ${t('total')}: ${formatCurrency(calc.totalAmount, currency)}
                     </div>
                 `;
                 comparisonGrid.appendChild(item);
@@ -1705,7 +1984,6 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             
             document.getElementById('comparisonResults').style.display = 'block';
             
-            // Add to comparison history
             addToComparisonsHistory(selectedCalcs, bestIndex);
         }
 
@@ -1769,7 +2047,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="icon">📊</div>
-                        <p>No calculations yet</p>
+                        <p>${t('noCalculationsYet')}</p>
                     </div>
                 `;
                 return;
@@ -1777,14 +2055,13 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
             
             container.innerHTML = state.calculationsHistory.map(item => {
                 const currency = item.currency;
-                const date = new Date(item.timestamp).toLocaleDateString();
-                const time = new Date(item.timestamp).toLocaleTimeString();
+                const date = new Date(item.timestamp).toLocaleDateString(state.language === 'uk' ? 'uk-UA' : 'en-US');
+                const time = new Date(item.timestamp).toLocaleTimeString(state.language === 'uk' ? 'uk-UA' : 'en-US');
                 const hasExtra = item.monthlyExtra > 0;
                 
-                // Format monthly extra for badge
                 const monthlyExtraFormatted = currency === 'UAH' 
-                    ? `+${item.monthlyExtra} ₴/mo`
-                    : `+${currencySymbols[currency]}${item.monthlyExtra}/mo`;
+                    ? `+${item.monthlyExtra} ₴/${state.language === 'uk' ? 'міс' : 'mo'}`
+                    : `+${currencySymbols[currency]}${item.monthlyExtra}/${state.language === 'uk' ? 'міс' : 'mo'}`;
                 
                 return `
                     <div class="history-item">
@@ -1795,7 +2072,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                                 ${hasExtra ? `<span class="extra-badge">${monthlyExtraFormatted}</span>` : ''}
                             </div>
                             <div class="history-details">
-                                ${item.rate}% rate • ${item.period} months
+                                ${item.rate}% ${t('rate')} • ${item.period} ${t('months')}
                             </div>
                         </div>
                         <div class="history-result">
@@ -1815,15 +2092,15 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="icon">⚖️</div>
-                        <p>No comparisons yet</p>
+                        <p>${t('noComparisonsYet')}</p>
                     </div>
                 `;
                 return;
             }
             
             container.innerHTML = state.comparisonsHistory.map(item => {
-                const date = new Date(item.timestamp).toLocaleDateString();
-                const time = new Date(item.timestamp).toLocaleTimeString();
+                const date = new Date(item.timestamp).toLocaleDateString(state.language === 'uk' ? 'uk-UA' : 'en-US');
+                const time = new Date(item.timestamp).toLocaleTimeString(state.language === 'uk' ? 'uk-UA' : 'en-US');
                 const best = item.comparisons[item.bestIndex];
                 const currency = best.currency;
                 
@@ -1838,11 +2115,11 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                                 ${summary}
                             </div>
                             <div class="history-details">
-                                ${item.comparisons.length} deposits compared
+                                ${item.comparisons.length} ${t('depositsCompared')}
                             </div>
                         </div>
                         <div class="history-result">
-                            <div class="history-income">Best: ${formatCurrency(best.netIncome, currency)}</div>
+                            <div class="history-income">${t('best')}: ${formatCurrency(best.netIncome, currency)}</div>
                             <div class="history-date">${date} ${time}</div>
                         </div>
                     </div>
@@ -1853,8 +2130,8 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
         // Clear history
         async function clearHistory() {
             const confirmed = await modal.confirm(
-                'Are you sure you want to clear all calculation and comparison history? This action cannot be undone.',
-                'Clear History'
+                t('clearHistoryMsg'),
+                t('clearHistoryTitle')
             );
             
             if (confirmed) {
@@ -1863,7 +2140,7 @@ Copyright (c) 2025 Valentyn Kolesnikov <0009-0003-9608-3364@orcid.org>
                 saveState();
                 renderHistory();
                 
-                await modal.success('All history has been cleared successfully.', 'History Cleared');
+                await modal.success(t('historyClearedMsg'), t('historyCleared'));
             }
         }
     </script>
