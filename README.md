@@ -6,14 +6,24 @@ A web-based deposit income calculator designed for Ukrainian bank deposits. Calc
 
 ## 📋 Description
 
-Income Calculator helps users in Ukraine calculate potential income from bank deposits. It supports multiple currencies, accounts for the 23% tax rate on deposit income, and allows side-by-side comparison of different deposit scenarios.
+Income Calculator helps users in Ukraine calculate potential income from bank deposits. It supports multiple currencies, accounts for Ukrainian tax rates on deposit income, and allows side-by-side comparison of different deposit scenarios.
 
 ## ✨ Features
+
+- **Multi-Language Support**
+  - Ukrainian (default)
+  - English
+  - Language preference saved and restored on page reload
 
 - **Multi-Currency Support**
   - UAH (Ukrainian Hryvnia) - 3% to 19% annual rates
   - USD (US Dollar) - 0.1% to 3% annual rates
   - EUR (Euro) - 0.1% to 3% annual rates
+
+- **Flexible Tax Rates**
+  - 19.5% tax rate option
+  - 23% tax rate option (default)
+  - Tax setting saved and restored on page reload
 
 - **Flexible Calculations**
   - Initial deposit amount
@@ -22,7 +32,7 @@ Income Calculator helps users in Ukraine calculate potential income from bank de
   - Adjustable interest rates
 
 - **Automatic Tax Calculation**
-  - 23% tax rate on deposit income (Ukrainian tax law)
+  - Configurable tax rate (19.5% or 23%)
   - Shows gross income, tax amount, and net income
 
 - **Comparison Tool**
@@ -43,12 +53,14 @@ Income Calculator helps users in Ukraine calculate potential income from bank de
 
 ## 🚀 Usage
 
-1. Select your currency (UAH, USD, or EUR)
-2. Enter the initial deposit amount
-3. Optionally add monthly contributions
-4. Set the deposit period in months
-5. Adjust the annual interest rate using the slider
-6. Click "Calculate Income" to see results
+1. Select your preferred language (Ukrainian or English)
+2. Choose the tax rate (19.5% or 23%)
+3. Select your currency (UAH, USD, or EUR)
+4. Enter the initial deposit amount
+5. Optionally add monthly contributions
+6. Set the deposit period in months
+7. Adjust the annual interest rate using the slider
+8. Click "Calculate Income" to see results
 
 ### Comparing Deposits
 
@@ -87,16 +99,16 @@ For each month:
   Monthly Interest = Current Balance × (Annual Rate / 12)
   New Balance = Current Balance + Monthly Interest + Monthly Contribution
 
-Tax = Total Interest × 0.23
+Tax = Total Interest × Tax Rate (0.195 or 0.23)
 Net Income = Total Interest - Tax
 Final Amount = Total Deposited + Net Income
 ```
 
 ## 🌐 Localization
 
-- Interface: English
-- Target market: Ukraine
-- Tax rate: 23% (Ukrainian deposit income tax)
+- **Languages:** Ukrainian (default), English
+- **Target market:** Ukraine
+- **Tax rates:** 19.5% or 23% (Ukrainian deposit income tax)
 
 ## 📱 Responsive Design
 
@@ -107,11 +119,21 @@ Final Amount = Total Deposited + Net Income
 ## 💾 Data Storage
 
 All data is stored locally in the browser using `localStorage`:
+- Language preference
+- Tax rate setting
 - Calculator settings and results
 - Calculation history (max 12 entries)
 - Comparison history (max 12 entries)
 
 No data is sent to external servers.
+
+## ⚙️ Settings Persistence
+
+The following settings are automatically saved and restored after page reload:
+- Selected language (Ukrainian/English)
+- Selected tax rate (19.5%/23%)
+- All calculator inputs and results
+- Calculation and comparison history
 
 ## 🤝 Contributing
 
